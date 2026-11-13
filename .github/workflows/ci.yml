@@ -22,8 +22,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.ref }}
-        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        persist-credentials: false
 
     - name: Set up Python 3.9
       uses: actions/setup-python@v3
@@ -51,16 +50,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
  
   test:
-
-    permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
-      pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
-      contents: write
-
+    # Inherit workflow-wide contents: read. Tests and Codecov upload do not
+    # need GitHub write scopes; untrusted PR code must never receive them.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -72,8 +63,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          persist-credentials: false
           submodules: true
 
       - name: Configure git user SuperAGI-Bot
